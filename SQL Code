@@ -1,0 +1,37 @@
+USE (the database)
+GO
+
+/****** Object:  StoredProcedure name of stored procedure    Script Date:  ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE The stored procedure name
+AS
+/****** Script for SelectTopNRows command from SSMS  ******/
+
+  DECLARE @subjectstring AS VARCHAR(MAX);
+	DECLARE @bodystring AS VARCHAR(MAX);
+	DECLARE @Tablestring as VARCHAR(MAX)
+	
+	SET @Tablestring = CAST ( (SELECT [Date] AS 'td', '', [Home_Town] AS 'td', '', [Work_Town] AS 'td' , '', [ShiftStart] AS 'td','', [ShiftEnd] AS 'td', '', [Shift_Duration] AS 'td'
+	FROM The table/view
+	WHERE [Date]=CAST(GETDATE() AS DATE) AND [Type] = 'Core' AND any other restrictions
+  ORDER BY [Home_Town]
+	FOR XML PATH('tr'), ELEMENTS ) AS NVARCHAR(MAX))
+
+	SET @subjectstring = 'National Overview' +' ' + Cast(GETDATE() as VARCHAR(12)); 
+	SET @bodystring = '<html><body> Please find the moves table below:
+						<br><br>
+						<table border =1>
+						<tr>
+						<th> Date Of Move </th> <th> Home Town </th> <th> Work Town </th> <th> Shift Start </th> <th> Shift End </th> <th> Shift Duration </th>'
+
+	SET @bodystring = @bodystring + @Tablestring + '</Table></body></html>'
+
+
+	EXEC db_Insight_Email.[dbo].sp_send_dbmail
+	       @profile_name = 'Insight',
+       --@recipients='add in email addresses',
